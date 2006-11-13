@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+
+<project name="food" basedir="." default="usage">
+
+	<property file="build.properties"/>
+
+	<path id="dependency.path">
+		<fileset dir="${spring.lib.dir}" includes="*.jar"/>
+		<fileset dir="${spring.depends.dir}" includes="**/*.jar"/>
+		<fileset dir="${lib.dir}" includes="*.jar"/>
+	</path>
+
+	<path id="master-classpath">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+		<!-- We need the servlet API classes:				-->
+		<!--	 for Tomcat 4.1 use servlet.jar				-->
+		<!--	 for Tomcat 5.0 use servlet-api.jar		-->
+		<!--	 for Other app server - check the docs -->
+		<fileset dir="${appserver.home}/common/lib">
+			<include name="servlet*.jar"/>
+		</fileset>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+
+	<target name="build" description="Compile main source tree java files">
+		<mkdir dir="${build.dir}"/>
+		<javac destdir="${build.dir}" target="1.3" debug="true"
+		       deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.dir}"/>
+			<classpath refid="master-classpath"/>
+		</javac>
+	</target>
+
+	<target name="clean" description="Clean output directories">
+		<delete>
+			<fileset dir="${build.dir}">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}"/>
+		<javac destdir="${classes.dir}"
+		       classpathref="dependency.path">
+			<src path="${java.src.dir}"/>
+		</javac>
+	</target>
+
+	<target name="deploy" depends="build" description="Deploy application">
+		<!--<echo message="deploy from ${web.dir} to ${deploy.path}/${name}"/>-->
+		<copy todir="${deploy.path}/${name}" preservelastmodified="true" verbose="true">
+			<fileset dir="${web.dir}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="deploywar" depends="build" description="Deploy application as a WAR file">
+		<war destfile="${name}.war"
+		     webxml="${web.dir}/WEB-INF/web.xml">
+			<fileset dir="${web.dir}">
+				<include name="**/*.*"/>
+			</fileset>
+		</war>
+		<copy todir="${deploy.path}" preservelastmodified="true">
+			<fileset dir=".">
+				<include name="*.war"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!--<target name="install" description="Install application in Tomcat">-->
+	<!--<install url="${tomcat.manager.url}"-->
+	<!--username="${tomcat.manager.username}"-->
+	<!--password="${tomcat.manager.password}"-->
+	<!--path="/${name}"-->
+	<!--war="${name}"/>-->
+	<!--</target>-->
+
+	<!--<target name="junit" depends="build" description="Run JUnit Tests">-->
+	<!--<junit printsummary="on"-->
+	<!--fork="false"-->
+	<!--haltonfailure="false"-->
+	<!--failureproperty="tests.failed"-->
+	<!--showoutput="true">-->
+	<!--<classpath refid="master-classpath"/>-->
+	<!--<formatter type="brief" usefile="false"/>-->
+	<!---->
+	<!--<batchtest>-->
+	<!--<fileset dir="${build.dir}">-->
+	<!--<include name="**/Test*.*"/>-->
+	<!--</fileset>-->
+	<!--</batchtest>-->
+	<!---->
+	<!--</junit>-->
+	<!---->
+	<!--<fail if="tests.failed">-->
+	<!--tests.failed=${tests.failed}-->
+	<!--***********************************************************-->
+	<!--***********************************************************-->
+	<!--**** One or more tests failed! Check the output ... ****-->
+	<!--***********************************************************-->
+	<!--***********************************************************-->
+	<!--</fail>-->
+	<!--</target>-->
+
+	<!--<target name="list" description="List Tomcat applications">-->
+	<!--<list url="${tomcat.manager.url}"-->
+	<!--username="${tomcat.manager.username}"-->
+	<!--password="${tomcat.manager.password}"/>-->
+	<!--</target>-->
+
+	<!--<target name="reload" description="Reload application in Tomcat">-->
+	<!--<reload url="${tomcat.manager.url}"-->
+	<!--username="${tomcat.manager.username}"-->
+	<!--password="${tomcat.manager.password}"-->
+	<!--path="/${name}"/>-->
+	<!--</target>-->
+
+	<target name="start" description="Start Tomcat application">
+		<!-- start url="${tomcat.manager.url}"
+							 username="${tomcat.manager.username}"
+							 password="${tomcat.manager.password}"
+							 path="/${name}"/ -->
+		<!-- requires a working copy of WINNT*system32*sc.exe -->
+		<exec executable="sc.exe" os="Windows 2000">
+			<arg line='start "Apache Tomcat 4.1"'/>
+		</exec>
+	</target>
+
+	<target name="stop" description="Stop Tomcat application">
+		<!-- stop url="${tomcat.manager.url}"
+							 username="${tomcat.manager.username}"
+							 password="${tomcat.manager.password}"
+							 path="/${name}"/ -->
+		<exec executable="sc.exe" os="Windows 2000">
+			<arg line='stop "Apache Tomcat 4.1"'/>
+		</exec>
+	</target>
+
+	<target name="undeploy" description="Un-Deploy application">
+		<delete>
+			<fileset dir="${deploy.path}/${name}">
+				<include name="**/*.*"/>
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="usage">
+		<echo message=""/>
+		<echo message="${name} build file"/>
+		<echo message="-----------------------------------"/>
+		<echo message=""/>
+		<echo message="Available targets are:"/>
+		<echo message=""/>
+		<echo message="build     Build the application"/>
+		<echo message="clean     Clean output directories"/>
+		<echo message="compile   Compile java source"/>
+		<echo message="deploy    Deploy application as directory"/>
+		<echo message="deploywar Deploy application as a WAR file"/>
+		<!--<echo message="install   Install application in Tomcat"/>-->
+		<echo message="reload    Reload application in Tomcat"/>
+		<echo message="start     Start Tomcat application"/>
+		<echo message="stop	     Stop Tomcat application"/>
+		<!--<echo message="list      List Tomcat applications"/>-->
+		<!--<echo message="junit     Run JUnit Tests"/>-->
+		<echo message="undeploy  Un-deploy application"/>
+		<echo message="war       Create war file"/>
+		<echo message=""/>
+	</target>
+
+	<target name="war" depends="compile">
+		<war destfile="${target.dir}/${ant.project.name}.war"
+		     webxml="${webapp.dir}/web.xml">
+			<lib dir="${spring.lib.dir}"/>
+			<lib dir="${lib.dir}"/>
+			<classes dir="${classes.dir}"/>
+		</war>
+	</target>
+
+
+	<!-- ============================================================== -->
+	<!-- Tomcat tasks - remove these if you don't have Tomcat installed -->
+	<!-- ============================================================== -->
+	<taskdef name="install" classname="org.apache.catalina.ant.InstallTask">
+		<classpath>
+			<path location="${appserver.home}/server/lib/catalina-ant.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="reload" classname="org.apache.catalina.ant.ReloadTask">
+		<classpath>
+			<path location="${appserver.home}/server/lib/catalina-ant.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="list" classname="org.apache.catalina.ant.ListTask">
+		<classpath>
+			<path location="${appserver.home}/server/lib/catalina-ant.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask">
+		<classpath>
+			<path location="${appserver.home}/server/lib/catalina-ant.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask">
+		<classpath>
+			<path location="${appserver.home}/server/lib/catalina-ant.jar"/>
+		</classpath>
+	</taskdef>
+	<!-- ============================================================== -->
+	<!-- End Tomcat tasks                                               -->
+	<!-- ============================================================== -->
+
+
+	<!-- ============================================================== -->
+	<!-- Data-loading tasks                                             -->
+	<!-- ============================================================== -->
+	<target name="createTables">
+		<echo message="CREATE TABLES USING: ${db.driver} ${db.url}"/>
+		<sql driver="${db.driver}"
+		     url="${db.url}"
+		     userid="${db.user}"
+		     password="${db.pw}"
+		     onerror="continue">
+			<classpath refid="master-classpath"/>
+
+			CREATE TABLE products (
+			id INTEGER NOT NULL PRIMARY KEY,
+			description varchar(255),
+			price decimal(15,2)
+			);
+			CREATE INDEX products_description ON products(description);
+
+		</sql>
+	</target>
+
+	<target name="dropTables">
+		<echo message="DROP TABLES USING: ${db.driver} ${db.url}"/>
+		<sql driver="${db.driver}"
+		     url="${db.url}"
+		     userid="${db.user}"
+		     password="${db.pw}"
+		     onerror="continue">
+			<classpath refid="master-classpath"/>
+
+			DROP TABLE products;
+
+		</sql>
+	</target>
+
+	<target name="loadData">
+		<echo message="LOAD DATA USING: ${db.driver} ${db.url}"/>
+		<sql driver="${db.driver}"
+		     url="${db.url}"
+		     userid="${db.user}"
+		     password="${db.pw}"
+		     onerror="continue">
+			<classpath refid="master-classpath"/>
+
+			INSERT INTO products (id, description, price) values(1, 'Lamp', 5.78);
+			INSERT INTO products (id, description, price) values(2, 'Table', 75.29);
+			INSERT INTO products (id, description, price) values(3, 'Chair', 22.81);
+			COMMIT;
+			SHUTDOWN
+
+		</sql>
+	</target>
+
+	<target name="printData">
+		<echo message="PRINT DATA USING: ${db.driver} ${db.url}"/>
+		<sql driver="${db.driver}"
+		     url="${db.url}"
+		     userid="${db.user}"
+		     password="${db.pw}"
+		     onerror="continue"
+		     print="true">
+			<classpath refid="master-classpath"/>
+
+			SELECT * FROM products;
+
+		</sql>
+	</target>
+
+	<target name="clearData">
+		<echo message="CLEAR DATA USING: ${db.driver} ${db.url}"/>
+		<sql driver="${db.driver}"
+		     url="${db.url}"
+		     userid="${db.user}"
+		     password="${db.pw}"
+		     onerror="continue">
+			<classpath refid="master-classpath"/>
+
+			DELETE FROM products;
+
+		</sql>
+	</target>
+	<!-- ============================================================== -->
+	<!-- End data-loading tasks                                         -->
+	<!-- ============================================================== -->
+
+</project>
