@@ -1,0 +1,74 @@
+<html>
+<head>
+</head>
+<body>
+<table>
+	<tr valign="top">
+		<td>
+			<!-- add new food / left side -->
+			<table>
+				<tr>
+					<td>Name</td>
+					<td><input type="text" name="food_name" size="25"></td>
+				</tr>
+				<tr>
+					<td>Calories</td>
+					<td><input type="text" name="calories" size="5"></td>
+				</tr>
+				<tr>
+					<td>Fat (g)</td>
+					<td><input type="text" name="fat" size="5"></td>
+				</tr>
+				<tr>
+					<td>Fiber (g)</td>
+					<td><input type="text" name="fiber" size="5"></td>
+				</tr>
+				<tr>
+					<td>Quantity</td>
+					<td><input type="text" name="quantity" size="5">
+						<select name="quantity_type">
+							<option value="item">item</option>
+							<option value="oz">oz</option>
+							<option value="cup">cup</option>
+							<option value="tbsp">tbsp</option>
+							<option value="tsp">tsp</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Points</td>
+					<td><input type="text" name="points" size="5"></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="checkbox" name="save_to_db" checked> Also save to db</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" value="add"></td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<!-- drop down of existing foods / right side -->
+			<table>
+				<tr>
+					<td>
+						<select name="existing_food" multiple size="10">
+							<option value="1005">Charleston Chew</option>
+							<option value="983">chicken, grilled</option>
+							<option value="222">chicken, bbq</option>
+							<option value="4">gummy bears</option>
+							<option value="1006">salad dressing</option>
+						</select><br>
+						<input type="submit" value="add">
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<p></p>
+<a href="main.html">Return to day summary</a>
+</body>
+</html>
