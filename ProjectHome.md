@@ -1,0 +1,1 @@
+Spring application that takes input like name of the food, limited (for now) nutritional values, and a quantity, and allows the user to track daily intake. If a new food is added, persists data for a unit (a cup, an ounce, etc.) of that food to the database.
